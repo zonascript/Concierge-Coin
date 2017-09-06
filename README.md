@@ -1,67 +1,67 @@
 # Ethereum Bootstrap
 
-通过本文所述方法和项目中的脚本，我们可以快速的搭建好自己的私链进行开发测试。
+Through the methods described in this article and the script, we can quickly build our own private chain for development testing.
 
-仓库中包含的工具有：
+The repository contains the following tools:
 
-* 一个测试账户导入脚本，在首次部署时将五个测试账户私钥导入以太坊节点。
-* 一个genesis.json配置文件，为对应的五个测试账户提供初始资金（以太币），方便开发测试。
-* 一个快速启动私有链节点并进入交互模式的脚本。
-* 一个合约样例：`contracts/Token.sol`。这是一个使用合约语言[Solidity](http://solidity.readthedocs.org/en/latest/)编写的智能合约。Token合约的功能是发行一种token（可以理解为货币，积分等等），只有合约的创建者有发行权，token的拥有者有使用权，并且可以自由转账。
+* A test account import script that imports five test account private keys into the Ether Square node during the first deployment.
+* A genesis.json configuration file, corresponding to five test accounts to provide initial funding (Concierge currency), to facilitate the development of testing.
+* A script that quickly starts a private chain node and enters interactive mode.
+* A sample：`contracts/Token.sol`。This is an intelligent contract written using the contract language [Solidity](http://solidity.readthedocs.org/en/latest/)The Token contract's function is to issue a token (which can be understood as money, points, etc.). Only the creator of the contract has the right to issue, the owner of the token has the right to use, and is free to transfer.
 
-**测试账户私钥是放在Github上的公开数据，千万不要用于正式环境中或者公有链上。如果在测试环境之外的地方使用这些私钥，你的资金将会被窃取！**
+**Test account private key is public data placed on Github, do not use in the official environment or public chain. If you use these private keys outside the test environment, your funds will be stolen! Instead use a wallet program to generate some test accounts**
 
-## 准备
+## Setup
 
-1. 在本地安装好[go-ethereum](https://github.com/ethereum/go-ethereum)和[solc](http://solidity.readthedocs.org/en/latest/), 可以执行`geth`和`solc`命令。如果操作系统是ubuntu, 安装官方的ethereum安装包即可。
-2. 将本仓库通过`git clone`命令下载到本地。
-3. 安装[expect](http://expect.sourceforge.net/)，工具脚本用它来自动化一些过程。例如在ubuntu上: `sudo apt-get install expect`
+1. In the installation folder of [go-ethereum](https://github.com/ethereum/go-ethereum) and [solc](http://solidity.readthedocs.org/en/latest/), can run `geth`and`solc`
+2. Using `git clone` to download this repository to local
+3. Install [expect](http://expect.sourceforge.net/)
 
-## 启动geth
+## Start geth
 
-1. 进入本仓库目录: `cd ethereum-bootstrap`
-2. 导入测试账户私钥: `./bin/import_keys.sh`
-3. 初始化blockchain: `./bin/private_blockchain_init.sh`
-   输出的结果类似如下：
+1. Go to this: `cd ethereum-bootstrap`
+2. Import test accounts: `./bin/import_keys.sh`
+3. Initialize blockchain: `./bin/private_blockchain_init.sh`
+   The output is as follow：
    ```
     I0822 16:28:29.767646 ethdb/database.go:82] Alloted 16MB cache and 16 file handles to data/chaindata
     I0822 16:28:29.773596 cmd/geth/main.go:299] successfully wrote genesis block and/or chain rule set: 19425866b7d3298a15ad79accf302ba9d21859174e7ae99ce552e05f13f0efa3
    ```
-4. 为解决之后操作账户锁定问题，修改本目录下bin/private_blockchain.sh文件，在$geth后添加--unlock 0 --password value.
-   其中value为你建立的包含你第2步设置的密码的文件地址。这样下面就不需要再解锁账户的操作。
-5. 启动私有链节点: `./bin/private_blockchain.sh`. 启动成功后可以看到类似如下输出:
+4. To solve the problem account is lock, modify the file bin/private_blockchain.sh, add --unlock 0 --password value after geth,
+   where value is the file address of the password you created that contains the password you set in step 2
+5. Start the private chain node: `./bin/private_blockchain.sh`. The result is as follow:
   ![private-started.png](screenshots/private-started.png)
-6. 此时以太坊交互式控制台已经启动，我们可以开始测试和开发了。
+6. At this point the etherbox interactive console has been launched, we can start testing and development.
 
-注意：工具脚本假设你的geth安装在默认位置, 可以直接通过`geth`执行。如果`geth`命令安装在非标准的位置，可以设置`GETH`环境变量指定geth可执行文件的路径。例如:
+Note: The tool script assumes that your `geth` is installed in the default location and can be passed directly geth. If the geth command is installed in a non-standard location, you can set the `GETH` environment variable to specify the path of the geth executable file. E.g:
 
 `GETH=/some/weird/dir/geth ./bin/import_keys.sh`
 
-## 通过挖矿来为account发放ether
-查看账号余额：
+## Publish ether by digging for account
+View account balance：
 ```
 > web3.eth.getBalance(web3.eth.accounts[0])
 0
 ```
-可以通过挖矿的方式给第一个账号发行ether：
+You can mine ether:
 ```
 > miner.start(1)
 I0822 17:17:43.496826 miner/miner.go:119] Starting mining operation (CPU=1 TOT=3)
 I0822 17:17:43.497379 miner/worker.go:573] commit new work on block 30 with 0 txs & 1 uncles. Took 527.407µs
 ```
-需要调用miner.stop来停止挖矿：
+Call miner.stop to stop mining:
 ```
 > miner.stop()
 true
 > web3.eth.getBalance(web3.eth.accounts[0])
 309531250000000000000
 ```
-使用账号前先解锁：
+Unlock account to use
 ```
 > personal.unlockAccount(web3.eth.accounts[0])
 ```
 
-## 使用以太坊控制台编译和部署智能合约
+## Use the Etherbox Console to compile and deploy smart contracts
 
 在`contracts`目录下有一个智能合约样例文件`Token.sol`, 通过Solidity语言实现了基本的代币功能, 合约持有者可以发行代币, 使用者可以互相转账.
 
