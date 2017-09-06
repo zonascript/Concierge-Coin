@@ -72,7 +72,7 @@ The first step, we first contract code compressed into a line. Create a new ssh 
 Switch to the etherbox console, save the contract code as a variable:
 
 ```javascript
-var tokenSource = 'contract Token {     
+var tokenSource = ''contract Token {     
    address issuer;     
    mapping (address => uint) balances;      
    event Issue(address account, uint amount);     
@@ -96,7 +96,7 @@ var tokenSource = 'contract Token {
    function getBalance(address account) constant returns (uint) {         
       return balances[account];     
    } 
-}';
+}'';
 ```
 
 Then compile the contract code:
