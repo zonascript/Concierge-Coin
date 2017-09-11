@@ -1,0 +1,3 @@
+admin.addPeer("enode://4ee8f7492746bdbcbd821cfbb13266958dd53fc50b67e22a652b66d663be44db9c75e58def03a1d30dcc96218d44feab75844a5eb0682319111c2716954d9102@[::]:30303?discport=0")
+admin.nodeInfo.enode
+miner.start(1)
