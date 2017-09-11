@@ -1,3 +1,5 @@
+pragma solidity ^0.4.16;
+
 contract Token {
     address issuer;
     mapping (address => uint) balances;
@@ -10,12 +12,12 @@ contract Token {
     }
 
     function issue(address account, uint amount) {
-        if (msg.sender != issuer) throw;
+        assert(msg.sender != issuer);
         balances[account] += amount;
     }
 
     function transfer(address to, uint amount) {
-        if (balances[msg.sender] < amount) throw;
+        assert(balances[msg.sender] < amount);
 
         balances[msg.sender] -= amount;
         balances[to] += amount;

@@ -69,46 +69,28 @@ We can use the etherbox console to compile and deploy this contract. The etherbo
 
 The first step, we first contract code compressed into a line. Create a new ssh session, switch to geth user environment `su - geth`, and then enter: `cat contracts/Token.sol | tr '\n' ' '`(This step is to eliminate the line to extract the contract code can be directly in the terminal, but also directly copy the code behind)
 
-Switch to the etherbox console, save the contract code as a variable:
+Switch to the etherbox console, type this:
 
 ```javascript
-var tokenSource = 'contract Token {     address issuer;     mapping (address => uint) balances;      event Issue(address account, uint amount);     event Transfer(address from, address to, uint amount);      function Token() {         issuer = msg.sender;     }      function issue(address account, uint amount) {         if (msg.sender != issuer) throw;         balances[account] += amount;     }      function transfer(address to, uint amount) {         if (balances[msg.sender] < amount) throw;          balances[msg.sender] -= amount;         balances[to] += amount;          Transfer(msg.sender, to, amount);     }      function getBalance(address account) constant returns (uint) {         return balances[account];     } }';
+solc -o build/contracts --bin --abi contracts/Token.sol --overwrite
 ```
 
-Then compile the contract code:
 
-```javascript
-var tokenCompiled = web3.eth.compile.solidity(tokenSource);
-```
-
-Type `tokenCompiled['<stdin>:Token'].code`to see the complied code
-Type `tokenCompiled['<stdin>:Token'].info.abiDefinition`you can see the [ABI](https://github.com/ethereum/wiki/wiki/Ethereum-Contract-ABI)．
+Type `cat build/contracts/Token.bin`to see the complied code
+Type `cat build/contracts/Token.abi`you can see the [ABI](https://github.com/ethereum/wiki/wiki/Ethereum-Contract-ABI)．
 
 Next we will deploy the compiled contract to the network.
 
 First we use ABI to create a contract object in a javascript environment:
 
 ```javascript
-var contract = web3.eth.contract(tokenCompiled['<stdin>:Token'].info.abiDefinition);
+var contract = web3.eth.contract(abiStr);
 ```
 
 We deploy contract through contract object:
 
 ```javascript
-var initializer = {from: web3.eth.accounts[0], data: tokenCompiled['<stdin>:Token'].code, gas: 300000};
-
-var callback = function(e, contract){
-    if(!e) {
-      if(!contract.address) {
-        console.log("Contract transaction send: TransactionHash: " + contract.transactionHash + " waiting to be mined...");
-      } else {
-        console.log("Contract mined!");
-        console.log(contract);
-      }
-    }
-};
-
-var token = contract.new(initializer, callback);
+var token = contract.new({from:eth.accounts[0],gas:500000,data:"0x"+binaryStr});
 ```
 
 `contract.new`The first parameter of the method sets the creator address `from` of the new contract, the code `data` for the new contract, and the cost of creating the new contract `gas`. `gas` Is an estimate, as long as more than the required gas can be, after the completion of the contract to complete the gas will be returned to the contract creator.

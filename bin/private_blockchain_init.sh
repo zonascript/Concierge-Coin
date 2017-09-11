@@ -2,4 +2,4 @@
 
 geth=${GETH:-geth}
 
-$geth --datadir data --networkid 31415926 --rpc --rpccorsdomain "*" init ./genesis.json
+$geth --datadir data --networkid 31415926 --rpc --rpccorsdomain "*" --rpcport "8545" init ./genesis.json
